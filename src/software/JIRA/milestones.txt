@@ -1,0 +1,17 @@
+FD - Performance_5	FD_M_Performance_5	13wwXX	#CCFF99
+FD - Performance_4	FD_M_Performance_4	13ww45	#99ff99
+FD - Performance_3	FD_M_Performance_3	13ww41	#66FF99
+FD - Performance_2	FD_M_Performance_2	13ww39	#00FF99
+FD - Pre-alpha 30k product	FD_Prealpha_30k	13ww39	#00CCCC
+FD - Pre-alpha 5k product	FD_Prealpha_5k	13ww37	#00AAFF
+SP - Phase 5 (High Endurance-90% Performance)	SP_Phase5	13ww36	#FF9900
+FD - Dual Core Feature Readiness	FD_M_Dual_Core_Ready	13ww35	#AAFFFF
+FD - Performance_1	FD_M_Performance_1	13ww30	#00CC99
+FD - Full NIT readiness	FD_M_Full_NIT	13ww29	#33AAFF
+BV - Phase 3: Feature Complete / Alpha RC	BV_Phase3	13ww29.5	#CCFF99
+FD - E2E readiness	FD_M_E2EReady	13ww27	#00BBBB
+FD - Dual Core Windows boot	FD_M_DualCoreWinBoot	13ww27	#CCFFFF
+SP - Phase 4 Features (Core Endurance Implemented)	SP_Phase4	13ww26.5	#FFCC66
+FD - NAND 5k Ready	FD_NAND_5k_Ready	13ww23	#3366FF
+FD - PLI Unsafe Feature Integration	FD_M_PLI_UnsafeFeatureReady	13ww19	#00AACC
+Sprint Commits	--- No Tag ---	End of Sprint	#CC99FF

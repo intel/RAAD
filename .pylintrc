@@ -1,0 +1,36 @@
+[FORMAT]
+# use 2 spaces instead of 4, and slightly increase # of characters per line
+indent-string = "  "
+max-line-length = 125
+
+[MISCELLANEOUS]
+# ignore # of TODOs in score
+notes=
+
+[MESSAGES CONTROL]
+# C0103: snake_case naming style
+# W0105: single-line docstrings
+# E0401: import error for some packages if not installed in PYTHONPATH
+# R0903: too few public methods in `EarlyStoppingByLossVal` (keras_autoencoder.py)
+# W0613: unused argument in Keras callbacks `on_batch_end` and `on_epoch_end` (keras_autoencoder.py)
+<<<<<<< HEAD
+=======
+# W0612: unused CXTranslationUnits in clang_parser.py
+>>>>>>> origin/master
+# R0914: too many local variables in `getPerfDataset`, `detectAnomalyPoints`, and `aggregateAndTrain` (autoperf.py)
+# C0415: import outside toplevel, needed for fast CLI (lazy imports)
+# W0108: lambda may not be necessary, but is used for filtering empty git diff lines
+# W0703: catching broad exceptions for file removal (if it fails, we don't care)
+# W0231, E1003, E1101: pylint doesn't understand TensorFlow...
+# R0912, R0913, R0915: plot_histograms is complicated
+<<<<<<< HEAD
+disable = C0103, W0105, E0401, R0903, W0613, R0914, C0415, W0108, W0703, W0231, E1003, E1101, R0912, R0913, R0915
+=======
+# W0212: acessing a protected member of the ConfigParser(), only way to support automatic dataclassing
+# R0902: annotation CLI is complicated
+# R0201: method could be a function, but needs to be a method to match other interfaces
+# W0603: using `global` statement to accelerate parsing
+# W1202: f-string formatting in a log statement, but seems necessary
+# E0213: method should have `self` as first argument, but can't do that in this special case
+disable = C0103, W0105, E0401, R0903, W0613, W0612, R0914, C0415, W0108, W0703, W0231, E1003, E1101, R0912, R0913, R0915, W0212, R0902, R0201, W0603, W1202, E0213
+>>>>>>> origin/master

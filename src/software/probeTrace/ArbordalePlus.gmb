@@ -1,0 +1,108 @@
+version = 4
+
+"Intel-NSG: ArbordalePlus Platform" {
+    working_dir = "C:\\Repo\\ssddev\\nand\\gen3\\projects\\";
+    variable {
+        "ELF_EXEC" { value = "arbordaleplus_da" }
+        "CS_ROOT" { value = "C:\\Repo\\ssddev\\nand\\gen3" }
+        "PROBE" { value = "-usb" }
+        "CON_CMD" { value = "connect -noprocess setup=\"$CS_ROOT\\scripts\\GHS\\config\\ArbordalePlus_a0_trace.mbs\" mpserv -cfgload \"$CS_ROOT\\scripts\\GHS\\config\\probe_options_srp.ghpcfg\" -XARMv8_AArch32 -no_trace_registers $PROBE" }
+    }
+    0 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"disconnect; $CON_CMD; route program.core.1{;}; if (_LAST_COMMAND_STATUS == 0x1) {echo \"Command succeed\"; route program.core.1 {quit entry}; route program.core.2 {quit entry}; route program.core.3 {quit entry}; route program.core.4 {quit entry}} "};
+    }
+    1 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route debugger.pid.2 {new -alias program.core.1 -bind debugger.pid.2 \"$CS_ROOT/projects/objs/$ELF_EXEC/$ELF_EXEC.elf\"}"};
+    }
+    2 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route debugger.pid.3 {new -alias program.core.2 -bind debugger.pid.3 \"$CS_ROOT/projects/objs/$ELF_EXEC/$ELF_EXEC.elf\"}"};
+    }
+    3 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route debugger.pid.4 {new -alias program.core.3 -bind debugger.pid.4 \"$CS_ROOT/projects/objs/$ELF_EXEC/$ELF_EXEC.elf\"}"};
+    }
+    4 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route debugger.pid.5 {new -alias program.core.4 -bind debugger.pid.5 \"$CS_ROOT/projects/objs/$ELF_EXEC/$ELF_EXEC.elf\"}"};
+    }
+    5 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.1 {halt; load}"};
+        enabled = false;
+    }
+    6 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.1 {halt; prepare_target -verify=none}"};
+    }
+    7 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.2 {halt; prepare_target -verify=none}"};
+    }
+    8 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.3 {halt; prepare_target -verify=none}"};
+    }
+    9 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.4 {halt; prepare_target -verify=none}"};
+    }
+    10 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.1 {target tl; target support; c; trace list}"};
+        enabled = false;
+    }
+    11 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.2 {c; trace list}"};
+        enabled = false;
+    }
+    12 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.3 {c; trace list}"};
+        enabled = false;
+    }
+    13 {
+        task = "Debug: Connect-and-Attach";
+        action = "Debugger Command";
+        argument += {"route program.core.4 {c; trace list; trace enable}"};
+        enabled = false;
+    }
+    14 {
+        task = "Debug: MULTI RC Script";
+        action = "Editor";
+        argument += {"$CS_ROOT/scripts/GHS/config/ArbordalePlus.rc"};
+        enabled = false;
+    }
+    15 {
+        task = "Debug: MULTI RC Script";
+        action = "Debugger Command";
+        argument += {"< \"$CS_ROOT\\scripts\\GHS\\config\\ArbordalePlus.rc\""};
+    }
+    16 {
+        task = "Debug: MULTI Python Script";
+        action = "Editor";
+        argument += {"$CS_ROOT/scripts/GHS/config/ArbordalePlus.py"};
+        enabled = false;
+    }
+    17 {
+        task = "Debug: MULTI Python Script";
+        action = "Python Script";
+        argument += {"\"$CS_ROOT\\scripts\\GHS\\config\\ArbordalePlus.py\" $PROBE $CS_ROOT $CS_ROOT/scripts/GHS/config $ELF_EXEC"};
+    }
+}

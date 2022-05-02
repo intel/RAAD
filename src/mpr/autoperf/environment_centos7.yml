@@ -1,0 +1,13 @@
+name: ap
+channels:
+  - defaults
+dependencies:
+  - python=3.8.2
+  - conda-forge::rich=9.13.0
+  - conda-forge::python-clang=11.1.0
+  - conda-forge::libclang=11.1.0
+  - numpy=1.19.2
+  - anaconda::tensorflow=2.4.0
+  - pydot=1.4.1
+  - matplotlib=3.3.4
+  - scikit-learn=0.24.1

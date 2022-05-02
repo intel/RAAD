@@ -1,0 +1,99 @@
+# Ignore file types
+
+#  Binary
+*.pyc
+*.o
+*.so
+*.a
+*.exe
+*.dll
+*.egg-info
+*.eggs
+*.out
+
+#  Zips
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.bz2
+*.tgz
+
+#  Log Files
+*.log
+
+#  Temp files
+.idea
+*~
+*__pycache__
+.DS_Store
+.vscode
+
+# Data Files Exclusion
+*.json
+*.html
+*.ini
+*.csv
+*.ts
+*.bak
+data/Tv2HiTAC*
+data/time-series2020*
+data/time-series_2020*
+data/GatherData*
+data/output/*
+data/output*
+*.files
+*/.autoperf/*
+*COUNTERS*
+
+# Parse temp files/folders
+/src/software/parse/sample/*
+
+# Test arbordale files
+/src/software/parse/arbordaleplus_t2/*
+
+# General TSV Data files(Might need to delete if pattern becomes development file)
+Tv2HiTAC_*
+
+# Tensorflow file
+*.h5
+
+# IDE settings
+*.xml
+.idea/*
+*.iml
+*.vscode
+*.DS_Store
+
+# Files
+*.ps
+*.pdf
+
+# Config file and temp store
+tmp
+build
+archieves
+dox/build/
+src/data/output/JiraReport.tex
+src/software/twidl
+src/software/twidl/*
+src/software/twidl/*.py
+src/software/decode/ADP_UV
+src/software/decode/CDR_DA
+src/mpr/autoperf/autoperf/profiler/lib/perfpoint.h
+src/mpr/controlflag/src/tree-sitter/tree-sitter
+src/mpr/controlflag/src/tree-sitter/tree-sitter-c
+src/mpr/autoperf/autoperf/test/CPUBenchmark
+src/mpr/autoperf/autoperf/profiler/scope/cscope.in.out
+src/mpr/autoperf/autoperf/profiler/scope/cscope.out
+src/mpr/autoperf/autoperf/profiler/scope/cscope.po.out
+version.txt
+
+# Do not cache a user, password in repository
+/.raadProfile/.credentials.conf
+.raadProfile/credentials.conf
+*.conf

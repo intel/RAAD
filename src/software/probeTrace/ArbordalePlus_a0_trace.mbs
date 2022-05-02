@@ -1,0 +1,485 @@
+// MBS_OPT="early"
+
+//////////////////////////////////////////////////////////////////////////////////////
+// This script is used to enable ARM CoreSight / GHS SuperTrace on SentinelrockPlus //
+// (which is the ASIC for ArbordalePlus                                             //
+//                                                                                  //
+// This works with the GHS SuperTrace probe with a Serial connection to the surf    //
+// board. This will also work with a Parallel connection, as well as regular GHS    //
+// JTAG probe.                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////
+
+//mute on 				// quiet, please
+substitute < %EVAL{mprintf("%s/ghprobe/hsst_debug.rc", _TOOLS_DIR)}
+
+// **********************************************************************
+// Base address defines.  Modify as needed per chip family
+// **********************************************************************
+eval $DEBUG_SYS_BASE         = 0x0B200000
+eval $SYSCTRL_STP_EN         = 0x0C006118   // SYSCTRL base + Broadcom Misc IP control (0x0C006000 + 0x118)
+eval $CLK_ADDR_BASE          = 0x0C006058    // SYSCTRL base + cpuclken (0x0C006000 + 0x50) en_clk_atclk
+eval $CPUD_ADDR_BASE         = 0x0B230000    //cortex A53 debug system
+eval $ETM0_ADDR_BASE         = 0x0B23C000    // ETM (Embedded Trace Macrocell) = cortex A53 debug system + cpu0 trace (0x0B220000 + 0x1C000)
+eval $ETM1_ADDR_BASE         = 0x0B23D000    // ETM (Embedded Trace Macrocell) = cortex A53 debug system + cpu1 trace (0x0B220000 + 0x1D000)
+eval $FUNNEL_ADDR_BASE       = 0x0B240000     //Funnel //0x0B240000
+eval $TPIU_ADDR_BASE         = 0x0B242000    // TPIU (Trace Port Interface Unit)
+eval $TMC0_ADDR_BASE         = 0x0B243000    // ETF0 (Embedded Trace FIFO0)
+eval $TMC1_ADDR_BASE         = 0x0B244000    // ETF1 (Embedded Trace FIFO1)
+eval $TMC2_ADDR_BASE         = 0x0B24A000    // ETF2 (Embedded Trace FIFO2)
+eval $TMC3_ADDR_BASE         = 0x0B24B000    // ETF3 (Embedded Trace FIFO3)
+//ETR.
+eval $STM_ADDR_BASE          = 0x0B246000    //STM (System Trace Macrocell)
+eval $STP_ADDR_BASE          = 0x0B247000    // STP  (Serial Trace Port)
+eval $CTI_ADDR_BASE          = 0x0B248000    //CTI (cross trigger interface)
+eval $REP_ADDR_BASE          = 0x0B249000    //replicator
+
+eval $AURORA_LINERATE_12G	= 12000
+eval $AURORA_LINERATE_6G	= 6000
+
+// **********************************************************************
+// Register offset defines
+// **********************************************************************
+eval $CLK_MPU_REG                = 0x008
+
+// TPIU_ADDR_BASE
+eval $TPIU_PORT_STS_REG          = 0x000         //TPIU Supported port status register
+eval $TPIU_PORT_SIZE_REG         = 0x004         //sets port size
+eval $TPIU_MODE_REG              = 0x028         //Mode register
+eval $TPIU_FFCR_REG              = 0x304         //Formatter and Flush Control register 
+eval $TPIU_LOCK_REG              = 0xFB0         //Lock register
+
+// STM_ADDR_BASE
+eval $STM_LOCK                   = 0xFB0         //lock
+eval $STM_SPER                   = 0xE00
+eval $STM_STCSR                  = 0xE80
+
+// STP_ADDR_BASE
+eval $STP_LOCK_REG               = 0xFB0         //Lock register
+eval $STP_PLL_REGU_REG           = 0x000         //Regulator control register
+
+eval $STP_PLL_CTL_REG            = 0x004         //PLL control register
+eval $STP_PLL_OVR_CTL_REG        = 0x008         //PLL Over Ride Register  
+eval $STP_PLL_TEST_STATUS_REG    = 0x018         //PLL VCO Control register
+eval $STP_PLLPFD_REG             = 0x020         //PLL PFD and FP control register
+eval $STP_PLL_STS_REG            = 0x03C         //PLL Status register shows pll lock status
+ 
+eval $STP_PHY_CONFIG_REG         = 0x04C         //PHY config register
+eval $STP_PHY_CTL_REG0           = 0x050         //Phy control register0
+eval $STP_PHY_CTL_REG1           = 0x054         //phy control register1
+ 
+eval $STP_PLL_LNK_CTL            = 0x400         //Link Control register
+eval $STP_PLL_LNK_CHNL           = 0x404         //Link Channel initializtion register 
+eval $STP_PLL_LNK_STS            = 0x408         //Link Status register
+eval $STP_PLL_LNK_TPIU           = 0x418         //Link TPIU configuration register
+
+// TMC0_ADDR_BASE or TMC1_ADDR_BASE //Coresight trace memory controller configured as the ETF
+eval $TMC_STS_REG                = 0x00C         //Status register 
+eval $TMC_CTL_REG                = 0x020         //Control register
+eval $TMC_BUFWM_REG              = 0x034         //Water Mark Buffer level 
+eval $TMC_MODE_REG               = 0x028         //Mode Register
+eval $TMC_FFCR_REG               = 0x304         //Fomatter and Flush CONTROL Register
+eval $TMC_LOCK_REG               = 0xFB0         //lock
+
+// ETM0_ADDR_BASE or ETM1_ADDR_BASE
+eval $ETM_CTL_REG                = 0x004         //programming control register 
+eval $ETM_TRACE_CONFIG_REG       = 0x010         //Trace configuration register
+eval $ETM_TRACE_EVENT_REG0       = 0x020         //Event control register 0 
+eval $ETM_TRACE_EVENT_REG1       = 0x024         //Event control register 1 
+eval $ETM_STALL_REG              = 0x02C         //Stall control register
+eval $ETM_TIME_STAMP             = 0x030         //Global timestamp control register
+eval $ETM_SYNC_PER               = 0x034         //Synchronization Period Register
+eval $ETM_TRCID_REG              = 0x040         //Trace ID register
+eval $ETM_VICTL_REG              = 0x080         //ViewInst Main Control Register 
+eval $ETM_VIIECTL_REG            = 0x084         //ViewInst Include/Exclude Control Register
+eval $ETM_VISSCTL_REG            = 0x088         //ViewInst Start/Stop Control Register
+eval $ETM_RESC_CTL_REG           = 0x208         //Resource selection control register 
+eval $ETM_SINGLE_SHOT_REG        = 0x280         //Single-shot Comparator control register 
+eval $ETM_OS_LOCK_REG            = 0x300         //os lock 
+eval $ETM_PWR_REG                = 0x310         //Power down control register 
+eval $ETM_ADDR_REG               = 0x400         //Address comparatro value register 
+eval $ETM_COMP_TYPE_REG          = 0x480         //Address comparator accesss type 
+eval $ETM_LOCK_REG               = 0xFB0         //Lock register
+
+//Funnel
+eval $FL_CTL_REG                 = 0x000         //Funnel control register
+eval $FL_LCK_STS                 = 0xFB4         //lock
+eval $FL_LCK_CTL                 = 0xFB0         //lock status   
+eval $FL_D_CFIG                  = 0xFC8         //Device configuration (RO)
+
+// **********************************************************************
+// Constants defines
+// **********************************************************************
+eval $CS_UNLOCK                  = 0xC5ACCE55
+eval $TMC_CHECK_RDY_MASK         = 0x4
+eval $LOCK_REG_STS               = 0xFB4
+eval $STP_LINK_STATUS_GOOD       = 0x4F // channel up, 4 lanes up, no error 
+eval $STP_PLL_LOCKED_READY       = 0x3  // PLL is locked and ready
+eval $TRC_CLOCK_MODE_SYS_CLK     = 0x00000100
+eval $TRC_CLOCK_MODE_STP_CLK     = 0x00000000
+
+//mute off 				// verbose, please
+
+// **********************************************************************
+// This section defines helper read_addr/write_addr functions
+// **********************************************************************
+
+define read_mem(addr) {
+    substitute target a=mr %EVAL{mprintf("0x%x", $addr)}
+    substitute return %EVAL{target print 0x$$a}
+}
+
+define write_mem(addr, val) {
+    substitute target mw %EVAL{$addr} %EVAL{$val}
+}
+  
+define read_apb(addr) {
+    substitute target a=rr apb[%EVAL{p/x addr}]
+    substitute return %EVAL{target print 0x$$a}
+}
+
+define write_apb(addr, val) {
+    substitute target rw apb[%EVAL{p/x addr}] %EVAL{p/x val}
+}
+define read_addr(addr) {
+    return( read_apb($addr) )
+   }
+
+define write_addr(addr, val) {
+    write_apb($addr, $val)
+}
+
+// Wait for bits to be set in read register
+define wait_for_register(addr, bits, maxRetries, sleep) {
+    for (eval $retryCount = 0; ($retryCount < maxRetries); $retryCount++) {
+        $regval = read_addr($addr)
+        $status = $regval & $bits;
+        mprintf("Loop(%03d) : Status = %08lx, bits = %08lx\n", $retryCount, $status, $bits);
+        if ($status == $bits) {
+            return $regval;
+        }
+        substitute wait -time %EVAL{$sleep}
+    }
+    return 0;
+}
+
+define get_probe_rx_up() {
+    substitute eval $probe_%EVAL{target tracereg aurora_rx_up}
+    return $probe_aurora_rx_up
+}
+
+define py_common() {
+    //py -b -s "d=self_dbw\nif not d:d=debugger"
+    py -b -s "d=debugger\nif not (d and d.IsAlive()):d=GHS_Debugger()"
+    py -b -s "def m(c):\n a=d.RunCmd(c,printOutput=False)\n return d.cmdExecOutput"
+    py -b -s "def set_py_result(cond):\n a=m('$G_py_result=%d'%int(cond))"
+}
+py_common()
+
+// Devices		trace.interface*	te5.interface*
+// =============	================	==============
+// GHP4-HSST			HSST			SPod
+// GHP4-Parallel		Parallel		TEPod
+// STPv3-HSST			HSST			HSST
+// STPv3-Parallel		Parallel		TEPod
+// GHPv3			None		    	GHP3
+// * case sensitive
+define probe_has_hardware_trace() {
+    // Check if trace is supported on this probe
+    py -b -s "set_py_result('None' not in m('target infoqry trace.interface'))"
+    return $G_py_result
+}
+
+define probe_has_HSST_trace() {
+    // Check if HSST is supported on this probe
+    py -b -s "set_py_result('HSST' in m('target infoqry trace.interface'))"
+    return $G_py_result
+}
+
+define probe_has_12Gbps_support() {
+    py -b -s "set_py_result('SPod' in m('target infoqry te5.interface'))"
+    return $G_py_result
+}
+
+// **********************************************************************
+// This section defines function to configure trace
+// **********************************************************************
+
+define unlock_components(){
+    write_addr($FUNNEL_ADDR_BASE+0xFB0, $CS_UNLOCK)
+    if (read_addr($FUNNEL_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+
+    write_addr($TMC0_ADDR_BASE+$TMC_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($TMC0_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+
+    write_addr($TMC1_ADDR_BASE+$TMC_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($TMC1_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+    
+    write_addr($STP_ADDR_BASE+$STP_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($STP_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+
+    write_addr($REP_ADDR_BASE+0xFB0, $CS_UNLOCK)
+    if (read_addr($REP_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+        break -fail }   
+
+    write_addr($TPIU_ADDR_BASE+$TPIU_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($TPIU_ADDR_BASE + $LOCK_REG_STS)  == 0x0) {
+        break -fail }  
+    write_addr($CPUD_ADDR_BASE+0xFB0, $CS_UNLOCK)
+    if (read_addr($CPUD_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+
+    write_addr($CTI_ADDR_BASE+0xFB0, $CS_UNLOCK)
+    if (read_addr($CTI_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+
+    write_addr($ETM0_ADDR_BASE+$ETM_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($ETM0_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+    
+    write_addr($TMC1_ADDR_BASE+$TMC_LOCK_REG, $CS_UNLOCK)
+    if (read_addr($TMC1_ADDR_BASE + $LOCK_REG_STS) == 0x0) {
+    break -fail }
+}
+
+//************************************************************************
+// Trace Memory Controller/ETF0 setup and configuration 
+//************************************************************************
+define tmc_cfg(addr_base) {
+    write_addr($addr_base + $TMC_FFCR_REG, 0x00000003) //Enable ETF0 Formatter
+    write_addr($addr_base + $TMC_MODE_REG, 0x00000002) //Enable ETMF in HW FIFO Mode
+    write_addr($addr_base + $TMC_CTL_REG,  0x00000001) //Enable Trace capture in ETF0
+}
+
+//************************************************************************
+// Trace Port Interface Unit
+//************************************************************************
+define tpiu_cfg() {    
+   write_addr($TPIU_ADDR_BASE + $TPIU_PORT_SIZE_REG, 0x80000000)       //32 bit wide port size, might be 16 if safer 
+   //write_addr($TPIU_ADDR_BASE + $TPIU_FFCR_REG, 0x00001103)    // Enable format also -FFCR
+   write_addr($TPIU_ADDR_BASE + $TPIU_FFCR_REG, 0x00000000)    // Enable format also -FFCR
+   
+   //target t 14 set tpiu_supp_port_size default		// already set in ghpcfg
+}
+
+//************************************************************************
+// High Speed Serial Trace link
+//************************************************************************
+define hsst_link_up(linerate) {
+    write_addr($CPUD_ADDR_BASE+0x300, 0x00000000)
+    
+    $R_twelve_gbps_support = probe_has_12Gbps_support()
+    if ($R_twelve_gbps_support) {
+        // v4-only settings
+        target tracereg aurora_dfe=0
+        target tracereg aurora_clksel=1
+    } else {
+        target tracereg aurora_dfe=10
+        target tracereg aurora_rxeqmix=2
+    }
+    substitute target tracereg aurora_linerate=%EVAL{p/x $linerate}
+    target tracereg aurora_rx_reset=1
+    get_probe_rx_up() //expected to return 0
+
+    $stpLinkCtlReg = $STP_ADDR_BASE + $STP_PLL_LNK_CTL
+
+    read_addr($STP_ADDR_BASE + 0x420)
+
+    eval $maxRetries = 0x20
+    for (eval $i=0; $i<$maxRetries; $i++) {
+        // Assert Link Reset
+        write_apb($stpLinkCtlReg, read_apb($stpLinkCtlReg) & 0xFFFFFFF0); // Assert Link Reset
+        wait -time 100
+        read_addr($STP_ADDR_BASE + 0x420)
+        //  Release Link Reset
+        write_apb($stpLinkCtlReg, read_apb($stpLinkCtlReg) | 0x0000000d); // Release Link Reset
+        wait -time 100
+        read_addr($STP_ADDR_BASE + 0x420)
+       
+        $linkstatus = wait_for_register($STP_ADDR_BASE + $STP_PLL_LNK_STS, $STP_LINK_STATUS_GOOD , 32, 1) //if this takes long set to 1
+        if (($linkStatus & 0xFF) == $STP_LINK_STATUS_GOOD) { //;bit6=Channel_Up,bits5:0=Lane_Up5:0
+            mprintf("****** STP Link status good *******\n");
+        } else {
+            mprintf("ERROR: STP Link status error. \n");        
+            break -fail;
+        }
+
+        if (get_probe_rx_up() == 1) {
+            mprintf("probe side of link up on try %d\n", $i)
+            break;
+        } else if ($i == ($maxRetries-1)) { // get_probe_rx_up() returns 0 after $maxRetries attempts
+            mprintf("Failed to initialize Aurora channel after %d tries\n", $i+1)
+            break;
+	}	
+    } 
+}
+
+//************************************************************************
+// Serial Trace Port
+// System Initialization: Functional Bring-Up Programming Sequence
+//
+//these steps lock the PLL and the STP 
+//************************************************************************
+define stp_initialization() {
+
+    write_addr($STP_ADDR_BASE + $STP_PLLPFD_REG,         0x8975D00F)    // Set STP PLL config for 25MHz Ref clock                          //12a
+    write_addr($STP_ADDR_BASE + $STP_PLL_CTL_REG,        0x05902330)    // Enable STP PHY at 6GHz and sets bypass and div clk out of reset  //13
+    write_addr($STP_ADDR_BASE + $STP_PLL_OVR_CTL_REG,    0x00000021)    // Program PLL OverRide register starts VCO                         //14
+    write_addr($STP_ADDR_BASE + $STP_PLL_REGU_REG ,      0x01537A00)    // set traceclkout divider and regulator resets                     //15
+    write_addr($STP_ADDR_BASE + $STP_PHY_CONFIG_REG,     0x00001330)    // Set Phy data rate for6Gbps                                       //16
+    write_addr($STP_ADDR_BASE + $STP_PLL_REGU_REG,       0x01537A01)    // enable the regulator for the STP by taking out of reset          //17
+    
+    
+    $status = 0xF & wait_for_register($STP_ADDR_BASE + $STP_PLL_STS_REG, $STP_PLL_LOCKED_READY, 32, 1)  //checks last 2 bits for PLL lock and PLL ready    
+    if ($status == 0x3) {
+        mprintf("********** STP PLL Locked. ********\n");
+    } else {
+        mprintf("ERROR: STP PLL did not lock. \n");
+        break -fail;
+    }
+    write_addr($FUNNEL_ADDR_BASE, 0x300)
+    write_addr($FUNNEL_ADDR_BASE, 0x301)
+    write_addr($STP_ADDR_BASE + $STP_PLL_REGU_REG,       0x01537B01)    //release the traceclkout divider reset
+    write_addr($STP_ADDR_BASE + $STP_PHY_CTL_REG0,       0x0000001F)    //Enables STP Phy takes ouf of tx reset and lane reset
+    write_addr($STP_ADDR_BASE + $STP_PLL_LNK_CHNL,       0x3fdfe200)    //set link init Sequence to link 2 channels 
+    write_addr($STP_ADDR_BASE + $STP_PLL_LNK_TPIU,       0x0000000C)    //Sto ignore tracectl mode and 32bit mode for TPIU Set 
+    write_addr($STP_ADDR_BASE + $STP_PHY_CTL_REG0,       0x0020001F)    //Enables STP PHY FIFO  [21] tx_fifowrena
+    write_addr($STP_ADDR_BASE + $STP_PLL_LNK_CTL,        0x0000000D)
+}
+
+// ======================================================================
+// Actual setting / configuring CoreSight components
+// ======================================================================
+define hsst_main(mode_GHz){
+
+	substitute eval $probe_%EVAL{target tracereg aurora_linerate}
+    	if (($probe_aurora_linerate == ($mode_GHz * 1000)) \
+        	&& get_probe_rx_up() \
+		&& ((read_apb($STP_ADDR_BASE + $STP_PLL_LNK_CTL) & 0xf) == 0xf)) {
+    	//if (($probe_aurora_linerate == ($mode_GHz * 1000)) && (get_probe_rx_up()) && ((read_apb($STP_ADDR_BASE + $STP_PLL_LNK_CTL) & 0xf) == 0xf)) {
+		print "========== Aurora link already up. Done with hsst_main() =========="
+        // Enable trace and trace registers
+        print "Enabling trace register access and trace"
+        target trace_registers on
+        trace on
+		return
+    	}
+	
+	unlock_components()
+
+	write_addr($TSG_ADDR_BASE, 0x3) //enable timestamp generator
+
+	print "========== Configure STP =========="
+	stp_initialization() //STP will be locked to PLL after this completes 
+	//hsst_link_up();
+	
+	print "====== Configure for Core 0 ======="
+	tmc_cfg($TMC0_ADDR_BASE) //runs the TMC configuation program with TMC0
+
+	print "====== Configure for Core 1 ======="
+	tmc_cfg($TMC1_ADDR_BASE)
+
+	print "====== Configure for Core 2 ======="
+	tmc_cfg($TMC2_ADDR_BASE) 
+
+	print "====== Configure for Core 3 ======="
+	tmc_cfg($TMC3_ADDR_BASE)
+
+	print "========= Configure TPIU =========="
+	tpiu_cfg() 
+	print "========== Attempt 6 Gbps STP Link =========="
+        hsst_link_up($AURORA_LINERATE_6G);
+
+	// target support
+	print "========= Turn on Trace =========="
+	write_apb($STP_ADDR_BASE + $STP_PLL_LNK_CTL, 0xf)  // turn on trace
+
+	write_addr($TPIU_ADDR_BASE + $TPIU_FFCR_REG, 0x00001000)
+	write_addr($TPIU_ADDR_BASE + $TPIU_FFCR_REG, 0x00001040)
+	write_addr($TPIU_ADDR_BASE + 0x300,          0x00000002)
+
+	//target tracereg aurora_rx_up
+	//target trace_registers on
+
+	print "====== Done with Trace setup ======"
+	
+	//break;
+	//print "To enable trace: Type trace on, or enable trace through TimeMachine tab"
+
+	//print "Enabling trace register access"
+	//target trace_registers on
+	if (get_probe_rx_up() == 1) {
+		// Enable trace and trace registers
+        	print "Enabling trace register access and trace"
+        	target trace_registers on
+        	trace on
+    	}
+}  // end of hsst_main()
+
+define trace_setup() {
+    if (probe_has_hardware_trace()) {
+        print "Found Green Hills trace capable probe!"
+        // Determine if probe supports HSST
+        if (probe_has_HSST_trace()) {
+            print "Found HSST trace capable probe, proceed to setup HSST"
+            hsst_main(6)
+        } else {
+            print "Found Parallel trace capable probe, no HSST setup"
+            // Enable trace and trace registers for Parallel trace
+            print "Enabling trace register access and trace for use with Parallel trace"
+            target trace_registers on
+            trace on
+        }
+    } else {
+        print "Found no trace capable probe, exit trace setup"
+        // Enable trace and trace registers for ETB/ETR
+        print "Enabling trace register access and trace for use with ETB/ETF/ETR"
+        target trace_registers on
+        trace on
+    }
+}
+
+clearhooks
+addhook -before reset {
+    print "-- Begin 'before reset' hook --"
+    target trace_registers off
+    print "-- End 'before reset' hook --"
+}
+addhook -after reset {
+    print "-- Begin 'after reset' hook --"
+    target jr
+    halt
+    trace_setup()
+    print "-- End 'after reset' hook --"
+}
+addhook -after connect {
+    print "-- Begin 'after connect' hook --"
+    //reset
+    target jr
+    halt
+    target trace_registers off
+    target t 1..4 th
+    trace_setup()
+    print "-- End 'after connect' hook --"
+}
+addhook -before download {
+    print "-- Begin 'before download' hook --"
+//    reset
+
+//    Comment out the below trace_setup() as it should already run
+//    from "-after connect"
+//    trace_setup()
+
+    // halt All four Cortex-A53 cores
+    target jr
+    target t 1..4 th
+    target tl
+
+    target t 1..4 rw cpsr 0x1d3
+    target t 1..4 rw sctlr 0
+
+    print "-- End 'before download' hook --"
+}

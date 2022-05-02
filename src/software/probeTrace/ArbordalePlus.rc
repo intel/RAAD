@@ -1,0 +1,30 @@
+configure ContinuePlaybackFileOnError on
+
+disconnect
+
+connect -noprocess setup="C:\\Repo\\ssddev\\nand\\gen3\\scripts\\GHS\\config\\ArbordalePlus_a0_trace.mbs" mpserv -cfgload "C:\\Repo\\ssddev\\nand\\gen3\\scripts\\GHS\\config\\probe_options_srp.ghpcfg" -XARMv8_AArch32 -no_trace_registers -usb 0
+
+route debugserver.name.mpserv forward_to_pr {
+
+// check if program.core.1 alias already exist; if so, removes program.core.N aliases
+route program.core.1 {;}; if (_LAST_COMMAND_STATUS == 0x1) {echo "Command succeed"; route program.core.1 {quit entry}; route program.core.2 {quit entry}; route program.core.3 {quit entry}; route program.core.4 {quit entry}} 
+
+// Associate the executable to the 4 debugger.pid.N instances and create program.core.N aliases for each of them
+define CS_ROOT() { echo "C:\\Repo\\ssddev\\nand\\gen3" }
+define ELF_EXEC() { echo "arbordaleplus_da" }
+substitute route debugger.pid.2 {new -alias program.core.1 -bind debugger.pid.2 "%EVAL{CS_ROOT()}\\projects\\objs\\%EVAL{ELF_EXEC()}\\%EVAL{ELF_EXEC()}.elf"}
+substitute route debugger.pid.3 {new -alias program.core.2 -bind debugger.pid.3 "%EVAL{CS_ROOT()}\\projects\\objs\\%EVAL{ELF_EXEC()}\\%EVAL{ELF_EXEC()}.elf"}
+substitute route debugger.pid.4 {new -alias program.core.3 -bind debugger.pid.4 "%EVAL{CS_ROOT()}\\projects\\objs\\%EVAL{ELF_EXEC()}\\%EVAL{ELF_EXEC()}.elf"}
+substitute route debugger.pid.5 {new -alias program.core.4 -bind debugger.pid.5 "%EVAL{CS_ROOT()}\\projects\\objs\\%EVAL{ELF_EXEC()}\\%EVAL{ELF_EXEC()}.elf"}
+
+// Attach the executable to first through fourth cores
+route program.core.1 {halt; prepare_target -verify=none}
+route program.core.2 {halt; prepare_target -verify=none}
+route program.core.3 {halt; prepare_target -verify=none}
+route program.core.4 {halt; prepare_target -verify=none}
+
+//route program.core.1 {target tl; target support; trace list; c}
+//route program.core.2 {trace list; c}
+//route program.core.3 {trace list; c}
+//route program.core.4 {trace list; trace enable; c}
+}

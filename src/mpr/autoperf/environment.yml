@@ -1,0 +1,22 @@
+name: ap
+channels:
+  - defaults
+dependencies:
+  - numpy
+  - rich
+  - python-clang
+  - libclang
+  - tensorflow
+  - pydot
+  - pandas
+  - matplotlib
+  - seaborn
+  - gitpython
+  - scikit-learn
+  - psutil
+  - transitions
+  - graphviz
+  - python-graphviz
+  - dill
+  - tqdm
+prefix: /home/user/anaconda3/envs/ap

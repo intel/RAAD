@@ -1,0 +1,25 @@
+[TAG-RAD_START]
+[Assert_DE003]
+[Known_Causes]
+[  'Not calling the correct data abort handler for ECC err interrupts',
+   'Incorrect syndrome translation to DRAM controller',
+   'Incorrect address calculation to inject the uncorrectable error during Error Injection Testing',
+   'Not initializing ECC interrupt bits correctly.',
+   "Incorrect DRAM Refresh Rate settings. All Data Center products DRAM are spec'd for max "
+   'operating temperature at 95C, however this would require DRAM to be configured to double '
+   "refresh rate. This requirement wasn't documented clearly, resulting in all CD/CDR family's "
+   'DRAM to run in single refresh rate, which max operating temperature is rated at 85C. Form '
+   'factor with low DRAM thermal margin (E1.S, DualPort, M.2) coupled with marginal DRAM component '
+   'would hit this ASSERT. ADP and forward, this requirement is clarified in HAS. One way to '
+   'confirm this failure is to configure the failing to double refresh rate (boot loader change), '
+   'and reproduce the issue.']
+[Analysis_Data]
+[    Union dramEccInt_t, 0,
+     HalDram_GetEccInt(), 1,
+     ECC Interrupt bits data, 2,
+     HalDram_IsECCCheckingEnabled() must be true, 3,
+     Knowledge of working of ECC engine from CAS, 4,
+     DRAM memory, 5,
+     Twidl test commands for DRAM error injection, 6]
+[TAG-RAD_STOP]
+

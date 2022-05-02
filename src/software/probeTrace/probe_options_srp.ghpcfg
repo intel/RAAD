@@ -1,0 +1,274 @@
+{ 
+  "what" : "This is a config file for a Green Hills Probe or SuperTrace Probe. Load it with mpadmin -cfgload -usb <filename>.ghpcfg", 
+  "version" : [ 
+    3, 
+    0
+  ], 
+  "config" : [ 
+    { 
+      "xswitches" : [ 
+        "+armv8.trace", 
+        "+trg.trace_arch_info"
+      ], 
+      "reboot" : true
+    }, 
+    { 
+      "options" : { 
+        "global" : { 
+          "clock" : "15 MHz", 
+          "use_rtck" : "off", 
+          "debug_type" : "JTAG", 
+          "logic_high" : "1.8", 
+          "target" : "csdap(a53*4 cstf tsgen etf*4 etr stm atb_rep tpiu cti*2)", 
+          "checker" : "off", 
+          "power_detect" : "off", 
+          "verify_download" : "sparse", 
+          "rst_pulse" : "500 ms", 
+          "rst_settle" : "2 s", 
+          "power_on_settle" : "0 ms", 
+          "jrst_pulse" : "500 ms", 
+          "jrst_settle" : "2 s", 
+          "target_reset_pin" : "resets_tap"
+        }, 
+        "core 0" : { 
+          "coresight_timeout" : "50 ms", 
+          "ignore_csyspwrupack" : "off"
+        }, 
+        "core 1" : { 
+          "apb_index" : "0x0", 
+          "cti_base" : "armv7", 
+          "debug_base" : "0x80030000", 
+          "etm_base" : "0x8003c000", 
+          "memap_index" : "0x1", 
+          "memap_type" : "axi", 
+          "reset_detection" : "standard", 
+          "table_base" : "0x0002ff00"
+        }, 
+        "core 2" : { 
+          "apb_index" : "0x0", 
+          "cti_base" : "armv7", 
+          "debug_base" : "0x80032000", 
+          "etm_base" : "0x8003d000", 
+          "memap_index" : "0x1", 
+          "memap_type" : "axi", 
+          "reset_detection" : "standard", 
+          "table_base" : "0x0002ff20"
+        }, 
+        "core 3" : { 
+          "apb_index" : "0x0", 
+          "cti_base" : "armv7", 
+          "debug_base" : "0x80034000", 
+          "etm_base" : "0x8003e000", 
+          "memap_index" : "0x1", 
+          "memap_type" : "axi", 
+          "reset_detection" : "standard", 
+          "table_base" : "0x0002ff40"
+        }, 
+        "core 4" : { 
+          "apb_index" : "0x0", 
+          "cti_base" : "armv7", 
+          "debug_base" : "0x80036000", 
+          "etm_base" : "0x8003f000", 
+          "memap_index" : "0x1", 
+          "memap_type" : "axi", 
+          "reset_detection" : "standard", 
+          "table_base" : "0x0002ff60"
+        }, 
+        "core 5" : { 
+          "address" : "0x80040000", 
+          "ap_index" : "0x0"
+        }, 
+        "core 6" : { 
+          "address" : "0x80041000", 
+          "ap_index" : "0x0"
+        }, 
+        "core 7" : { 
+          "address" : "0x80043000", 
+          "ap_index" : "0x0", 
+          "rsz" : "auto", 
+          "triggerin_cti_core" : "none"
+        }, 
+        "core 8" : { 
+          "address" : "0x80044000", 
+          "ap_index" : "0x0", 
+          "rsz" : "auto", 
+          "triggerin_cti_core" : "none"
+        }, 
+        "core 9" : { 
+          "address" : "0x8004a000", 
+          "ap_index" : "0x0", 
+          "rsz" : "auto", 
+          "triggerin_cti_core" : "none"
+        }, 
+        "core 10" : { 
+          "address" : "0x8004b000", 
+          "ap_index" : "0x0", 
+          "rsz" : "auto", 
+          "triggerin_cti_core" : "none"
+        }, 
+        "core 11" : { 
+          "address" : "0x80045000", 
+          "ap_index" : "0x0", 
+          "triggerin_cti_core" : "none"
+        }, 
+        "core 12" : { 
+          "address" : "0x80046000", 
+          "ap_index" : "0x0"
+        }, 
+        "core 13" : { 
+          "address" : "0x80049000", 
+          "ap_index" : "0x0"
+        }, 
+        "core 14" : { 
+          "address" : "0x80042000", 
+          "ap_index" : "0x0", 
+          "tpiu_type" : "full", 
+          "tpiu_supp_port_size" : "default"
+        }, 
+        "core 15" : { 
+          "address" : "0x80048000", 
+          "ap_index" : "0x0"
+        },
+        "core 16" : { 
+          "address" : "0x8004c000", 
+          "ap_index" : "0x0"
+        }
+      }, 
+      "coresight_paths" : [ 
+        "1 [Cortex-A53] -> 7 [ETF @ 0x80043000 AP=0] -> 5.0 [CSTF] -> 14 [TPIU]", 
+        "2 [Cortex-A53] -> 8 [ETF @ 0x80044000 AP=0] -> 5.1 [CSTF] -> 14 [TPIU]",
+        "3 [Cortex-A53] -> 9 [ETF @ 0x8004a000 AP=0] -> 5.3 [CSTF] -> 14 [TPIU]", 
+        "4 [Cortex-A53] -> 10 [ETF @ 0x8004b000 AP=0] -> 5.4 [CSTF] -> 14 [TPIU]",
+        "1 [Cortex-A53] -> 7 [ETF @ 0x80043000 AP=0]", 
+        "2 [Cortex-A53] -> 8 [ETF @ 0x80044000 AP=0]",
+        "3 [Cortex-A53] -> 9 [ETF @ 0x8004a000 AP=0]", 
+        "4 [Cortex-A53] -> 10 [ETF @ 0x8004b000 AP=0]",
+        "1 [Cortex-A53] -> 7 [ETF @ 0x80043000 AP=0] -> 5.0 [CSTF] -> 11 [ETR]", 
+        "2 [Cortex-A53] -> 8 [ETF @ 0x80044000 AP=0] -> 5.1 [CSTF] -> 11 [ETR]",
+        "3 [Cortex-A53] -> 9 [ETF @ 0x8004a000 AP=0] -> 5.3 [CSTF] -> 11 [ETR]", 
+        "4 [Cortex-A53] -> 10 [ETF @ 0x8004b000 AP=0] -> 5.4 [CSTF] -> 11 [ETR]"
+      ]
+    },
+    { "probe_hardware" : [
+        "GHPv4"
+      ],
+      "adapter" : [
+        "SPod"
+      ],
+      "options" : {
+        "global" : {
+          "jtag_drive" : "auto",
+          "hsst_rx_lanes" : "4"
+        },
+        "core 14" : { 
+          "port_size" : "not_set"
+        }
+      }
+    },
+    { "probe_hardware" : [
+        "GHPv4"
+      ],
+      "adapter" : [
+        "TEPod"
+      ],
+      "options" : {
+        "global" : {
+          "trace_term_enable" : "off", 
+          "jtag_drive" : "auto",
+          "trace_capture_offset" : "auto",
+          "trace_logic_high" : "logic_high"
+        },
+        "core 14" : { 
+          "port_size" : "not_set"
+        }
+      }
+    },
+    { "probe_hardware" : [
+        "STPv3"
+      ],
+      "adapter" : [
+        "hsst"
+      ],
+      "options" : {
+        "global" : {
+          "hsst_rx_lanes" : "4"
+        },
+        "core 14" : { 
+          "port_size" : "not_set"
+        }
+      }
+    },
+    { "probe_hardware" : [
+        "STPv3"
+      ],
+      "adapter" : [
+        "tp410"
+      ],
+      "options" : {
+        "global" : {
+          "trace_term_enable" : "off", 
+          "jtag_drive" : "auto",
+          "trace_clock_source" : "normal",
+          "trace_logic_high" : "logic_high"
+        },
+        "core 14" : { 
+          "port_size" : "not_set"
+        }
+      }
+    },
+    { "probe_hardware" : [
+        "STPv3"
+      ],
+      "adapter" : [
+        "tp400"
+      ],
+      "options" : {
+        "global" : {
+          "trace_clock_source" : "normal"
+        },
+        "core 14" : { 
+          "port_size" : "not_set"
+        }
+      }
+    },
+    { "probe_hardware" : [
+        "GHPv3"
+      ],
+      "options" : {
+        "global" : {
+        }
+      }
+    },
+    {
+      "fw_version_min" : [ 5, 7 ],
+      "options" : {
+        "global" : {
+          "alt_telnet_port" : "not_set"
+        },
+        "core 0" : { 
+          "set_cdbgpwrupreq" : "default",
+          "set_csyspwrupreq" : "default"
+        }, 
+        "core 1" : { 
+          "has_fp" : "off"
+        }, 
+        "core 2" : { 
+          "has_fp" : "off"
+        }, 
+        "core 3" : { 
+          "has_fp" : "off"
+        }, 
+        "core 4" : { 
+          "has_fp" : "off"
+        }, 
+        "core 11" : { 
+          "buffer_reader" : "etr"
+        },
+        "core 14" : { 
+          "triggerin_cti_core" : "none"
+        }
+      }
+    }
+  ]
+}
+
